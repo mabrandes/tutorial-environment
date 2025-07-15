@@ -4,17 +4,25 @@ networks:
   grafana:
 
 volumes:
-  app_data: {}
+  app_data: {} 
+  grafana_data: #saves data, when docker is shut down
+  prometheus_data: # data should be saved here: /var/lib/docker/volumes/prometheus_data/_data
+  pg_data:
+  app2_data:
 
 services:
   prometheus:
     image: prom/prometheus:v2.49.0
     volumes:
+      # link folders
       - ./prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+      - ./data/prometheus_data:/prometheus # save data locally
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
     ports:
+    # host:container
       - 9090:9090
     networks:
       - grafana
@@ -48,6 +56,7 @@ services:
       - GF_AUTH_BASIC_ENABLED=false # removes login 2/2
     volumes:
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - grafana_data:/var/lib/grafana
 
   app:
     build: ./app
@@ -64,3 +73,53 @@ services:
       - 8082:80
     networks:
       - grafana
+
+###############################################
+
+  db_pg: #hostname
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: psql#$
+      POSTGRES_DB: containerdb
+    ports:
+    # host:container
+       - 5433:5432
+    volumes:
+      # SAVE data in container
+      - pg_data:/var/lib/postgresql/data
+      # INIT database: it will only run when the data_directory is empty: ... down -v
+      - ./postgres_db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - grafana
+
+  app2: #hostname
+    build: ./app2
+    environment:
+      - DB_HOST=db_pg
+      - DB_PORT=5432
+      - DB_NAME=containerdb
+      - DB_USER=postgres
+      - DB_PASSWORD=psql#$
+    ports:
+    # host:container
+       - 8083:80
+    volumes:
+      - app2_data:/var/log
+    networks:
+      - grafana
+
+  api:
+    build: ./api
+    # image: tiangolo/uvicorn-gunicorn-fastapi:python3.10
+    ports:
+      - 8084:80
+    environment:
+      - DB_HOST=db_pg
+      - DB_PORT=5432
+      - DB_NAME=containerdb
+      - DB_USER=postgres
+      - DB_PASSWORD=psql#$
+    networks:
+      - grafana
+

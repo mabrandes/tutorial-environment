@@ -1,5 +1,7 @@
 apiVersion: 1
 
+# add database directly to graphana, could also be done manually
+
 datasources:
   - name: Prometheus
     type: prometheus
@@ -13,3 +15,25 @@ datasources:
     type: testdata
     access: proxy
     orgId: 1
+
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    editable: true
+
+  - name: PostgreSQL
+    type: postgres
+    access: proxy
+    url: db_pg:5432
+    database: testdb
+    user: postgres
+    secureJsonData:
+      password: psql#$
+    jsonData:
+      sslmode: "disable"       # or "require" if you use SSL
+      maxOpenConns: 100
+      maxIdleConns: 100
+      connMaxLifetime: 14400
+
+
