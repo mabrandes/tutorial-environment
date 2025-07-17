@@ -1,8 +1,11 @@
 from flask import Flask, request, render_template_string, redirect
 import psycopg2
 import os
+from passlib.context import CryptContext
 
 app = Flask(__name__)
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Template for displaying users
 TEMPLATE = """
@@ -56,13 +59,16 @@ def add_user():
 
     if not name or not email or not password:
         return "Missing name, email, or password.", 400
+    
+    # Hash the password before saving
+    hashed_password = pwd_context.hash(password)
 
     try:
         conn = get_connection()
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO users (name, email, password, salary) VALUES (%s, %s, %s, %s)",
-            (name, email, password, salary or 0)
+            (name, email, hashed_password, salary or 0)
         )
         conn.commit()
         cur.close()

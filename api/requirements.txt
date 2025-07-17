@@ -1,2 +1,5 @@
 fastapi
-psycopg2-binary
+uvicorn
+psycopg2
+python-jose[cryptography]
+passlib[bcrypt]

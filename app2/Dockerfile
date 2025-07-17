@@ -21,4 +21,4 @@ COPY . /app
 EXPOSE 80
 
 # Command to run your Flask app
-CMD ["python", "main.py"]
+CMD ["python", "main_sign_in_up.py"]

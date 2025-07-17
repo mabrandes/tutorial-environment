@@ -191,8 +191,8 @@ db:
 | **App2**         | [http://localhost:8083/](http://localhost:8083/) |
 | **API**         | [http://localhost:8084/](http://localhost:8084/) |
 | **DB Tables**| [http://localhost:8084/tables](http://localhost:8084/tables) |
-| **DB Tables name**| [http://localhost:8084/query/your_table_name](http://localhost:8084/query/your_table_name) |
-
+| **DB Tables name**| [http://localhost:8084/query/users](http://localhost:8084/query/users) |
+| **DB Interface**| [http://localhost:8084/docs](http://localhost:8084/docs) |
 
 
 ## 📦 Where images come from
